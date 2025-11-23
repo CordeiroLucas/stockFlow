@@ -48,20 +48,20 @@ A organização segue o padrão MVT (Model-View-Template) do Django:
 
 ```text
 stockFlow/
-├── backend/
-│   ├── manage.py
-│   ├── stockFlow/       # Configurações do Projeto (settings, urls)
-│   └── estoque/         # Aplicação Principal
-│       ├── models.py    # Tabelas (Produto, Movimentacao) e Regras
-│       ├── views.py     # Lógica (Dashboard, Filtros, CSV, Saída Rápida)
-│       ├── forms.py     # Formulários e Validadores de CPF
-│       ├── urls.py      # Rotas da aplicação
-│       └── templates/   # Camada de Apresentação
-│           └── estoque/
-│               ├── base.html         # Template Mestre (Temas, Navbar)
-│               ├── dashboard.html    # Tela Principal
-│               ├── historico.html    # Relatórios e CSV
-│               └── saida_rapida.html # Interface Mobile
+├── manage.py
+├── stockFlow/       # Configurações do Projeto (settings, urls)
+├── estoque/         # Aplicação Principal
+│   ├── models.py    # Tabelas (Produto, Movimentacao) e Regras
+│   ├── views.py     # Lógica (Dashboard, Filtros, CSV, Saída Rápida)
+│   ├── forms.py     # Formulários e Validadores de CPF
+│   ├── urls.py      # Rotas da aplicação
+│   └── templates/   # Camada de Apresentação
+│       └── estoque/
+│           ├── base.html         # Template Mestre (Temas, Navbar)
+│           ├── dashboard.html    # Tela Principal
+│           ├── form_movimentacao.html # Form para registro de movimentações
+│           ├── historico.html    # Relatórios e CSV
+│           └── saida_rapida.html # Interface Mobile
 
 ⚡ Como Rodar o Projeto
 Este projeto utiliza o uv para gerenciamento de dependências e ambientes virtuais pela sua alta performance.
@@ -71,23 +71,9 @@ Bash
 
 # Clone o repositório
 git clone <seu-link-do-git>
-cd stockFlow/backend
 
-# Cria o ambiente virtual com uv (cria a pasta .venv automaticamente)
-uv venv
-
-# Ative o ambiente virtual
-# Windows:
-.venv\Scripts\activate
-# Linux/Mac:
-source .venv/bin/activate
-2. Instalar Dependências
-Bash
-
-# Instala o Django via uv (muito mais rápido que pip)
-uv pip install django
-3. Banco de Dados
-Bash
+# Cria o ambiente virtual com uv já com as dependencias (cria a pasta .venv automaticamente)
+uv sync
 
 # Cria as migrações iniciais e tabelas no banco
 python manage.py makemigrations
