@@ -1,0 +1,46 @@
+{% extends 'estoque/base.html' %}
+
+{% block title %}Registrar - Estoque{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0 fs-5">Registrar Entrada/Saída</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-success w-100">Salvar</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary w-100 mt-2">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ... (Mantenha o seu script de validação de CPF aqui) ...
+    // Se quiser, pode mover esse script para o base.html também se for usar em outras telas.
+    document.addEventListener("DOMContentLoaded", function() {
+       // ... Código anterior do CPF ...
+       // (Recomendo copiar e colar aquele bloco <script> que fizemos antes aqui)
+    });
+</script>
+{% endblock %}

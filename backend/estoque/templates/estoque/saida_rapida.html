@@ -1,0 +1,112 @@
+{% extends 'estoque/base.html' %}
+
+{% block title %}Saída Rápida{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-6 col-lg-4">
+        
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-box-arrow-right text-danger"></i>Infinity Bar</h4>
+            <!-- <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-x-lg"></i> Fechar
+            </a> -->
+        </div>
+
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Produto</label>
+                        {{ form.produto }}
+                        {% if form.produto.errors %}
+                            <div class="text-danger small mt-1">{{ form.produto.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Quantidade</label>
+                        <div class="input-group input-group-lg">
+                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(-1)">
+                                <i class="bi bi-dash-lg"></i>
+                            </button>
+                            
+                            {{ form.quantidade }}
+                            
+                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(1)">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        {% if form.quantidade.errors %}
+                            <div class="text-danger small mt-1">{{ form.quantidade.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-danger btn-lg rounded-pill py-3 fw-bold shadow-sm">
+                            CONFIRMAR SAÍDA
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center mt-3 text-muted small">
+            <i class="bi bi-info-circle"></i> O registro será salvo sem vínculo de CPF.
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function ajustarQtd(valor) {
+        // Pega o input gerado pelo Django (o ID padrão é id_campo)
+        const input = document.getElementById('id_quantidade');
+        let atual = parseInt(input.value) || 0; // Se vazio, assume 0
+        
+        let novoValor = atual + valor;
+        
+        // Não deixa ficar negativo
+        if (novoValor < 1) novoValor = 1;
+        
+        input.value = novoValor;
+    }
+
+    // Inicializa com 1 se estiver vazio
+    document.addEventListener("DOMContentLoaded", function() {
+        const input = document.getElementById('id_quantidade');
+        if (!input.value) input.value = 1;
+    });
+</script>
+
+<style>
+    /* Ajustes finos para Mobile */
+    
+    /* Input de quantidade limpo (sem setinhas padrão do navegador) */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    /* Integração com Tema Escuro do base.html */
+    [data-bs-theme="dark"] .form-select-lg,
+    [data-bs-theme="dark"] .form-control-lg {
+        background-color: var(--bg-body); /* Usa a cor de fundo do tema */
+        border-color: #495057;
+        color: var(--text-main);
+    }
+    
+    /* Destaque no foco */
+    .form-control:focus, .form-select:focus {
+        border-color: #dc3545; /* Vermelho Bootstrap */
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+</style>
+{% endblock %}

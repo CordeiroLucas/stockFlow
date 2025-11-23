@@ -1,0 +1,64 @@
+from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+
+class Produto(models.Model):
+    nome = models.CharField(max_length=100)
+    sku = models.CharField(max_length=20, unique=True, null=True, blank=True) # Código do produto
+    quantidade = models.IntegerField(default=0)
+    preco = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.nome} ({self.quantidade})"
+
+class Movimentacao(models.Model):
+    TIPO_CHOICES = (
+        ('E', 'Entrada'),
+        ('S', 'Saída'),
+    )
+
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name='movimentacoes')
+    tipo = models.CharField(max_length=1, choices=TIPO_CHOICES)
+    quantidade = models.PositiveIntegerField()
+    
+    # Dados do solicitante
+    solicitante_nome = models.CharField(max_length=100, blank=True)
+    solicitante_cpf = models.CharField(max_length=14, blank=True, null=True) # Ex: 000.000.000-00
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} - {self.produto.nome} - {self.quantidade}"
+
+    def clean(self):
+        # LÓGICA DE NEGÓCIO: Validação do Limite de 3 Retiradas
+        if self.tipo == 'S' and self.solicitante_cpf:
+            # Pega o inicio e fim do dia atual
+            hoje_inicio = timezone.now().replace(hour=0, minute=0, second=0)
+            
+            # Conta quantas saídas esse CPF já fez hoje (excluindo a atual se for edição)
+            saidas_hoje = Movimentacao.objects.filter(
+                tipo='S',
+                solicitante_cpf=self.solicitante_cpf,
+                created_at__gte=hoje_inicio
+            ).count()
+
+            # Se for uma criação nova e já tiver 3, bloqueia.
+            if not self.pk and saidas_hoje >= 3:
+                raise ValidationError(f"O CPF {self.solicitante_cpf} já atingiu o limite de 3 retiradas hoje.")
+
+    def save(self, *args, **kwargs):
+        # Executa as validações (o clean não roda automaticamente no save por padrão)
+        self.full_clean()
+        
+        # Atualiza o estoque do produto automaticamente
+        # Nota: Em um sistema real de alta concorrência, usaríamos F() expressions ou Signals
+        super().save(*args, **kwargs) 
+        
+        # Recalcula o saldo do produto (Simples e Seguro)
+        entradas = self.produto.movimentacoes.filter(tipo='E').aggregate(models.Sum('quantidade'))['quantidade__sum'] or 0
+        saidas = self.produto.movimentacoes.filter(tipo='S').aggregate(models.Sum('quantidade'))['quantidade__sum'] or 0
+        
+        self.produto.quantidade = entradas - saidas
+        self.produto.save()

@@ -1,0 +1,45 @@
+# -----------------------------------
+# AMBIENTE VIRTUAL E PYTHON
+# -----------------------------------
+# Pastas comuns de ambiente virtual (se o nome for diferente, ajuste!)
+venv/
+.venv/
+env/
+
+# Arquivos de bytecode e caches
+__pycache__/
+*.pyc
+
+# -----------------------------------
+# ARQUIVOS SENSÍVEIS E DE BANCO DE DADOS
+# -----------------------------------
+# Banco de dados SQLite local (NUNCA deve ir para o Git)
+db.sqlite3
+
+# Arquivo de variáveis de ambiente/configurações secretas
+.env
+*.json # Se você armazena segredos em JSON
+
+# -----------------------------------
+# ARQUIVOS GERADOS PELO DJANGO
+# -----------------------------------
+# Pasta onde arquivos de mídia serão salvos
+/media/
+
+# Pasta onde os arquivos estáticos serão coletados na produção
+/staticfiles/
+/static_root/
+
+# Arquivos de log
+*.log
+
+# -----------------------------------
+# ARQUIVOS DE SISTEMA OPERACIONAL E EDITORES
+# -----------------------------------
+# MacOS
+.DS_Store
+
+# IDEs (Visual Studio Code, PyCharm/IntelliJ)
+.vscode/
+.idea/
+*~
