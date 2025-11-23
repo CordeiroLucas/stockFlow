@@ -62,12 +62,12 @@ stockFlow/
 │           ├── form_movimentacao.html # Form para registro de movimentações
 │           ├── historico.html    # Relatórios e CSV
 │           └── saida_rapida.html # Interface Mobile
-
+```
 ⚡ Como Rodar o Projeto
 Este projeto utiliza o uv para gerenciamento de dependências e ambientes virtuais pela sua alta performance.
 
 1. Clonar e Configurar Ambiente
-Bash
+```Bash
 
 # Clone o repositório
 git clone <seu-link-do-git>
@@ -75,16 +75,22 @@ git clone <seu-link-do-git>
 # Cria o ambiente virtual com uv já com as dependencias (cria a pasta .venv automaticamente)
 uv sync
 
+# Ativa o ambiente virtual (windows)
+.venv/Scripts/activate
+
 # Cria as migrações iniciais e tabelas no banco
 python manage.py makemigrations
 python manage.py migrate
 
 # (Opcional) Crie um superusuário para acessar o painel administrativo
 python manage.py createsuperuser
+```
+
 4. Executar
-Bash
+```Bash
 
 python manage.py runserver
+```
 Acesse no navegador: http://127.0.0.1:8000
 
 📖 Guia de Uso Rápido
