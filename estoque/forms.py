@@ -40,7 +40,7 @@ class MovimentacaoForm(forms.ModelForm):
         widgets = {
             'produto': forms.Select(attrs={'class': 'form-control'}),
             'tipo': forms.Select(attrs={'class': 'form-control'}),
-            'quantidade': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quantidade': forms.NumberInput(attrs={'class': 'form-control text-center', 'inputmode': 'numeric'}),
             'solicitante_nome': forms.TextInput(attrs={'class': 'form-control'}),
             # Adicionamos um ID específico aqui para o Javascript pegar
             'solicitante_cpf': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_cpf', 'placeholder': '000.000.000-00', 'maxlength': '14'}),

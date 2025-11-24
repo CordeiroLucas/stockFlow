@@ -16,7 +16,16 @@
                     {% for field in form %}
                         <div class="mb-3">
                             <label class="form-label">{{ field.label }}</label>
+                            {% if field.label == 'Quantidade' %}
+                                <div class="input-group">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(-1)">-</button>
+                                    {{ field }}
+                                    <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(1)">+</button>
+                                </div>
+                            {% else %}
                             {{ field }}
+                            {% endif %}
+
                             {% if field.errors %}
                                 <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
                             {% endif %}
@@ -36,11 +45,23 @@
 </div>
 
 <script>
-    // ... (Mantenha o seu script de validação de CPF aqui) ...
-    // Se quiser, pode mover esse script para o base.html também se for usar em outras telas.
+    function ajustarQtd(valor) {
+        // Pega o input gerado pelo Django (o ID padrão é id_campo)
+        const input = document.getElementById('id_quantidade');
+        let atual = parseInt(input.value) || 0; // Se vazio, assume 0
+        
+        let novoValor = atual + valor;
+        
+        // Não deixa ficar negativo
+        if (novoValor < 1) novoValor = 1;
+        
+        input.value = novoValor;
+    }
+
+    // Inicializa com 1 se estiver vazio
     document.addEventListener("DOMContentLoaded", function() {
-       // ... Código anterior do CPF ...
-       // (Recomendo copiar e colar aquele bloco <script> que fizemos antes aqui)
+        const input = document.getElementById('id_quantidade');
+        if (!input.value) input.value = 1;
     });
 </script>
 {% endblock %}
