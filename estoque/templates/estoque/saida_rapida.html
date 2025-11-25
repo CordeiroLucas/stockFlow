@@ -18,6 +18,19 @@
                 <form method="post">
                     {% csrf_token %}
 
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger border-danger border-2 rounded-3 mb-4 animate__animated animate__shakeX">
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="bi bi-x-octagon-fill fs-3 me-2"></i>
+                                <h5 class="mb-0 fw-bold">Não foi possível realizar</h5>
+                            </div>
+                            <hr class="my-2 text-danger opacity-50">
+                            <div class="small fw-semibold">
+                                {{ form.non_field_errors.0 }}
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <div class="mb-4">
                         <label class="form-label text-muted small fw-bold text-uppercase">Produto</label>
                         {{ form.produto }}

@@ -7,8 +7,10 @@ import csv
 from django.http import HttpResponse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 
 from django.db.models import Q
+from django.db import transaction
 from datetime import datetime, timedelta
 
 @login_required
@@ -22,12 +24,13 @@ def registrar_movimentacao(request):
         form = MovimentacaoForm(request.POST)
         if form.is_valid():
             try:
-                form.save() # Aqui ele chama o clean() do model e valida as 3 saídas!
+                with transaction.atomic(): 
+                    form.save()
+
                 messages.success(request, "Movimentação registrada com sucesso!")
                 return redirect('dashboard')
-            except Exception as e:
-                # Caso passe pelo form mas falhe no model (extra safety)
-                messages.error(request, f"Erro ao salvar: {e}")
+            except ValidationError as e:
+                form.add_error(None, e)
     else:
         form = MovimentacaoForm()
 
@@ -111,24 +114,22 @@ def exportar_relatorio(request):
 @login_required
 def registrar_saida_rapida(request):
     if request.method == 'POST':
-            form = SaidaRapidaForm(request.POST)
-            if form.is_valid():
-                try:
-                    # Cria o objeto mas não salva ainda
+        form = SaidaRapidaForm(request.POST)
+        if form.is_valid():
+            try:
+                # BLINDAGEM
+                with transaction.atomic():
                     movimentacao = form.save(commit=False)
-                    
-                    # Define automaticamente como SAÍDA
                     movimentacao.tipo = 'S'
-                    
-                    # Define campos opcionais como vazios ou um valor padrão do sistema
                     movimentacao.solicitante_nome = "Saída Rápida (Mobile)"
-                    movimentacao.solicitante_cpf = None 
-                    
-                    movimentacao.save()
-                    messages.success(request, f"Saída de {movimentacao.quantidade}x {movimentacao.produto.nome} registrada!")
-                    return redirect('registrar_saida_rapida') # Recarrega a mesma pág para agilizar a próxima
-                except Exception as e:
-                    messages.error(request, f"Erro ao registrar: {e}")
+                    movimentacao.solicitante_cpf = None
+                    movimentacao.save() # Se isso gerar erro de saldo, o 'atomic' desfaz a criação
+
+                messages.success(request, f"Saída de {movimentacao.quantidade}x {movimentacao.produto.nome} registrada!")
+                return redirect('registrar_saida_rapida')
+
+            except ValidationError as e:
+                form.add_error(None, e)
     else:
         form = SaidaRapidaForm()
 

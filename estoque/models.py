@@ -15,11 +15,15 @@ class Produto(models.Model):
     nome = models.CharField(max_length=100)
     sku = models.CharField(max_length=20, unique=True, null=True, blank=True) # Código do produto
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True, related_name='produtos')
-    quantidade = models.IntegerField(default=0)
+    quantidade = models.PositiveIntegerField(default=0)
     preco = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
     
     def __str__(self):
         return f"{self.nome} ({self.quantidade})"
+
+    def clean(self):
+        if self.quantidade < 0:
+            raise ValidationError("O estoque não pode ser negativo.")
 
 class Movimentacao(models.Model):
     TIPO_CHOICES = (
@@ -42,10 +46,18 @@ class Movimentacao(models.Model):
         return f"{self.get_tipo_display()} - {self.produto.nome} - {self.quantidade}"
 
     def clean(self):
+        if not self.produto_id or not self.quantidade:
+            return
+
         # LÓGICA DE NEGÓCIO: Validação do Limite de 3 Retiradas
-        if self.tipo == 'S' and self.solicitante_cpf:
-            # Pega o inicio e fim do dia atual
-            hoje_inicio = timezone.now().replace(hour=0, minute=0, second=0)
+        if self.tipo == 'S' and not self.pk: # Apenas se for Saída e for Novo registro
+            # Verifica se o que tem no banco é menor do que o que se quer tirar
+            if self.produto.quantidade < self.quantidade:
+                raise ValidationError({
+                    'quantidade': f'Estoque insuficiente. Disponível: {self.produto.quantidade}.'
+                })
+            
+            
             
             # Conta quantas saídas esse CPF já fez hoje (excluindo a atual se for edição)
             saidas_hoje = Movimentacao.objects.filter(
@@ -70,5 +82,11 @@ class Movimentacao(models.Model):
         entradas = self.produto.movimentacoes.filter(tipo='E').aggregate(models.Sum('quantidade'))['quantidade__sum'] or 0
         saidas = self.produto.movimentacoes.filter(tipo='S').aggregate(models.Sum('quantidade'))['quantidade__sum'] or 0
         
-        self.produto.quantidade = entradas - saidas
+        novo_saldo = entradas - saidas
+
+        # Proteção extra: Se o recálculo der negativo (ex: apagaram uma entrada antiga), lança erro
+        if novo_saldo < 0:
+            raise ValidationError(f"Operação inválida. Isso deixaria o produto {self.produto.nome} com saldo negativo ({novo_saldo}).")
+        
+        self.produto.quantidade = novo_saldo
         self.produto.save()
