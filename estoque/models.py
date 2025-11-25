@@ -2,9 +2,19 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
+class Categoria(models.Model):
+    nome = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return self.nome
+    
+    class Meta:
+        ordering = ['nome']
+
 class Produto(models.Model):
     nome = models.CharField(max_length=100)
     sku = models.CharField(max_length=20, unique=True, null=True, blank=True) # Código do produto
+    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True, related_name='produtos')
     quantidade = models.IntegerField(default=0)
     preco = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
     
