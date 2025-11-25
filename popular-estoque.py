@@ -46,7 +46,6 @@ def popular():
                 nome=produto_nome,
                 defaults={
                     "categoria": categoria,
-                    "quantidade": 100,  # Quantidade inicial para testes
                     "preco": 5.00,  # Preço fictício
                     "sku": sku_gerado,
                 },

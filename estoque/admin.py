@@ -16,6 +16,7 @@ class ProdutoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'quantidade', 'sku')
     list_filter = ('categoria',)
     search_fields = ('nome',)
+    readonly_fields = ('quantidade',)
     inlines = [MovimentacaoInline] # Permite ver o histórico dentro do produto
 
 @admin.register(Movimentacao)
