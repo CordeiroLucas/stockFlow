@@ -6,14 +6,17 @@ from .forms import MovimentacaoForm, SaidaRapidaForm
 import csv
 from django.http import HttpResponse
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 from django.db.models import Q
 from datetime import datetime, timedelta
 
+@login_required
 def dashboard(request):
     produtos = Produto.objects.all().order_by('nome')
     return render(request, 'estoque/dashboard.html', {'produtos': produtos})
 
+@login_required
 def registrar_movimentacao(request):
     if request.method == 'POST':
         form = MovimentacaoForm(request.POST)
@@ -30,6 +33,7 @@ def registrar_movimentacao(request):
 
     return render(request, 'estoque/form_movimentacao.html', {'form': form})
 
+@login_required
 def historico_movimentacoes(request):
     # Começa pegando TUDO, ordenado do mais recente para o mais antigo
     movimentacoes = Movimentacao.objects.all().select_related('produto').order_by('-created_at')
@@ -61,6 +65,7 @@ def historico_movimentacoes(request):
     
     return render(request, 'estoque/historico.html', context)
 
+@login_required
 def exportar_relatorio(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="relatorio_estoque.csv"'
@@ -103,6 +108,7 @@ def exportar_relatorio(request):
 
     return response
 
+@login_required
 def registrar_saida_rapida(request):
     if request.method == 'POST':
             form = SaidaRapidaForm(request.POST)

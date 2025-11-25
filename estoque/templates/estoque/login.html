@@ -1,0 +1,46 @@
+{% extends 'estoque/base.html' %}
+
+{% block title %}Login - StockFlow{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-4">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-5">
+                
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold"><i class="bi bi-box-seam text-primary"></i> StockFlow</h2>
+                    <p class="text-muted">Faça login para continuar</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger py-2 small">
+                            Usuário ou senha incorretos.
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Usuário</label>
+                        <input type="text" name="username" class="form-control form-control-lg" required autofocus>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Senha</label>
+                        <input type="password" name="password" class="form-control form-control-lg" required>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">
+                            ENTRAR
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
