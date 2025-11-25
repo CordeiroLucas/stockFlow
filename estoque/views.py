@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Produto, Movimentacao
+from .models import Produto, Movimentacao, Categoria
 from .forms import MovimentacaoForm, SaidaRapidaForm
 
 import csv
@@ -33,8 +33,15 @@ def registrar_movimentacao(request):
                 form.add_error(None, e)
     else:
         form = MovimentacaoForm()
+        
+    produtos_data = Produto.objects.all().values('id', 'nome', 'quantidade', 'categoria_id').order_by('nome')
 
-    return render(request, 'estoque/form_movimentacao.html', {'form': form})
+    context = {
+        'form': form,
+        'produtos_data': list(produtos_data) # Envia para o template
+    }
+
+    return render(request, 'estoque/form_movimentacao.html', context)
 
 @login_required
 def historico_movimentacoes(request):
@@ -133,4 +140,11 @@ def registrar_saida_rapida(request):
     else:
         form = SaidaRapidaForm()
 
-    return render(request, 'estoque/saida_rapida.html', {'form': form})
+    produtos_data = Produto.objects.all().values('id', 'nome', 'quantidade', 'categoria_id').order_by('nome')
+
+    context = {
+        'form': form,
+        'produtos_data': list(produtos_data) # Convertemos para lista para o JS ler
+    }
+
+    return render(request, 'estoque/saida_rapida.html', context)

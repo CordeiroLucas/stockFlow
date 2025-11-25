@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Movimentacao
+from .models import Movimentacao, Categoria, Produto
 import re
 
 # Função auxiliar para calcular o dígito verificador
@@ -34,17 +34,32 @@ def is_cpf_valido(cpf):
     return True
 
 class MovimentacaoForm(forms.ModelForm):
+    # Campo "virtual" de categoria para filtro
+    categoria = forms.ModelChoiceField(
+        queryset=Categoria.objects.all(),
+        required=False,
+        empty_label="Selecione uma Categoria",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
     class Meta:
         model = Movimentacao
-        fields = ['produto', 'tipo', 'quantidade', 'solicitante_nome', 'solicitante_cpf']
+        fields = ['tipo', 'categoria', 'produto', 'quantidade', 'solicitante_nome', 'solicitante_cpf']
+        
         widgets = {
-            'produto': forms.Select(attrs={'class': 'form-control'}),
-            'tipo': forms.Select(attrs={'class': 'form-control'}),
-            'quantidade': forms.NumberInput(attrs={'class': 'form-control text-center', 'inputmode': 'numeric'}),
+            # MUDANÇA AQUI: Alteramos para RadioSelect
+            'tipo': forms.RadioSelect(attrs={'class': 'btn-check'}), 
+            
+            'produto': forms.Select(attrs={'class': 'form-select', 'disabled': 'true'}),
+            'quantidade': forms.NumberInput(attrs={'class': 'form-control'}),
             'solicitante_nome': forms.TextInput(attrs={'class': 'form-control'}),
-            # Adicionamos um ID específico aqui para o Javascript pegar
             'solicitante_cpf': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_cpf', 'placeholder': '000.000.000-00', 'maxlength': '14'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Carrega produtos ordenados
+        self.fields['produto'].queryset = Produto.objects.all().order_by('nome')
 
     def clean_solicitante_cpf(self):
         cpf_original = self.cleaned_data.get('solicitante_cpf')
@@ -62,10 +77,23 @@ class MovimentacaoForm(forms.ModelForm):
         return cpf_limpo # Retorna o CPF limpo (apenas números) para o banco
     
 class SaidaRapidaForm(forms.ModelForm):
+# Campo extra apenas para o filtro (required=False pois validamos no front)
+    categoria = forms.ModelChoiceField(
+        queryset=Categoria.objects.all(),
+        required=False,
+        empty_label="Selecione uma Categoria",
+        widget=forms.Select(attrs={'class': 'form-select form-select-lg'})
+    )
+
     class Meta:
         model = Movimentacao
-        fields = ['produto', 'quantidade'] # Removemos CPF, Nome e Tipo
+        fields = ['categoria', 'produto', 'quantidade'] # Adicionamos categoria na ordem
         widgets = {
-            'produto': forms.Select(attrs={'class': 'form-select form-select-lg', 'aria-label': 'Selecione o produto'}),
+            'produto': forms.Select(attrs={'class': 'form-select form-select-lg', 'disabled': 'true'}), # Começa desativado
             'quantidade': forms.NumberInput(attrs={'class': 'form-control form-control-lg text-center', 'inputmode': 'numeric'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Carrega os produtos ordenados por nome para ficar bonito
+        self.fields['produto'].queryset = Produto.objects.all().order_by('nome')

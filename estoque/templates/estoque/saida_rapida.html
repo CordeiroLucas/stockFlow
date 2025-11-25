@@ -7,10 +7,10 @@
     <div class="col-12 col-md-6 col-lg-4">
         
         <div class="d-flex align-items-center justify-content-between mb-3">
-            <h4 class="mb-0 fw-bold"><i class="bi bi-box-arrow-right text-danger"></i>Infinity Bar</h4>
-            <!-- <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary rounded-pill">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-tablet-landscape text-danger"></i> Saída Rápida</h4>
+            <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary rounded-pill">
                 <i class="bi bi-x-lg"></i> Fechar
-            </a> -->
+            </a>
         </div>
 
         <div class="card shadow border-0 rounded-4">
@@ -22,17 +22,19 @@
                         <div class="alert alert-danger border-danger border-2 rounded-3 mb-4 animate__animated animate__shakeX">
                             <div class="d-flex align-items-center mb-1">
                                 <i class="bi bi-x-octagon-fill fs-3 me-2"></i>
-                                <h5 class="mb-0 fw-bold">Não foi possível realizar</h5>
+                                <h5 class="mb-0 fw-bold">Erro</h5>
                             </div>
-                            <hr class="my-2 text-danger opacity-50">
-                            <div class="small fw-semibold">
-                                {{ form.non_field_errors.0 }}
-                            </div>
+                            <div class="small fw-semibold">{{ form.non_field_errors.0 }}</div>
                         </div>
                     {% endif %}
 
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">1. Categoria</label>
+                        {{ form.categoria }}
+                    </div>
+
                     <div class="mb-4">
-                        <label class="form-label text-muted small fw-bold text-uppercase">Produto</label>
+                        <label class="form-label text-muted small fw-bold text-uppercase">2. Produto</label>
                         {{ form.produto }}
                         {% if form.produto.errors %}
                             <div class="text-danger small mt-1">{{ form.produto.errors.0 }}</div>
@@ -40,17 +42,11 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label text-muted small fw-bold text-uppercase">Quantidade</label>
+                        <label class="form-label text-muted small fw-bold text-uppercase">3. Quantidade</label>
                         <div class="input-group input-group-lg">
-                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(-1)">
-                                <i class="bi bi-dash-lg"></i>
-                            </button>
-                            
+                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(-1)"><i class="bi bi-dash-lg"></i></button>
                             {{ form.quantidade }}
-                            
-                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(1)">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(1)"><i class="bi bi-plus-lg"></i></button>
                         </div>
                         {% if form.quantidade.errors %}
                             <div class="text-danger small mt-1">{{ form.quantidade.errors.0 }}</div>
@@ -66,59 +62,85 @@
                 </form>
             </div>
         </div>
-
-        <div class="text-center mt-3 text-muted small">
-            <i class="bi bi-info-circle"></i> O registro será salvo sem vínculo de CPF.
-        </div>
-
     </div>
 </div>
 
+{{ produtos_data|json_script:"dados-produtos" }}
+
 <script>
+    // 1. Lógica dos Botões de Quantidade (+ e -)
     function ajustarQtd(valor) {
-        // Pega o input gerado pelo Django (o ID padrão é id_campo)
         const input = document.getElementById('id_quantidade');
-        let atual = parseInt(input.value) || 0; // Se vazio, assume 0
-        
+        let atual = parseInt(input.value) || 0;
         let novoValor = atual + valor;
-        
-        // Não deixa ficar negativo
         if (novoValor < 1) novoValor = 1;
-        
         input.value = novoValor;
     }
-
-    // Inicializa com 1 se estiver vazio
+    // Inicializa qtd com 1
     document.addEventListener("DOMContentLoaded", function() {
-        const input = document.getElementById('id_quantidade');
-        if (!input.value) input.value = 1;
+        const qtdInput = document.getElementById('id_quantidade');
+        if (!qtdInput.value) qtdInput.value = 1;
+
+        // --- LÓGICA DO DROPDOWN ENCADEADO ---
+        
+        // Carrega os dados do JSON que o Django gerou
+        const todosProdutos = JSON.parse(document.getElementById('dados-produtos').textContent);
+        
+        const catSelect = document.getElementById('id_categoria');
+        const prodSelect = document.getElementById('id_produto');
+
+        // Função para filtrar
+        function filtrarProdutos() {
+            const categoriaId = catSelect.value;
+            
+            // Limpa o select de produtos
+            prodSelect.innerHTML = '<option value="" selected>Selecione o produto...</option>';
+
+            if (categoriaId) {
+                // Habilita o campo
+                prodSelect.removeAttribute('disabled');
+                
+                // Filtra os produtos da categoria selecionada
+                const produtosFiltrados = todosProdutos.filter(p => p.categoria_id == categoriaId);
+
+                if (produtosFiltrados.length > 0) {
+                    produtosFiltrados.forEach(prod => {
+                        const option = document.createElement('option');
+                        option.value = prod.id;
+                        // Monta o texto: "Nome (Qtd)"
+                        option.textContent = `${prod.nome} (${prod.quantidade})`;
+                        prodSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.textContent = "Nenhum produto nesta categoria";
+                    prodSelect.appendChild(option);
+                }
+            } else {
+                // Se não tem categoria, desabilita
+                prodSelect.setAttribute('disabled', 'true');
+                prodSelect.innerHTML = '<option value="" selected>← Escolha a categoria primeiro</option>';
+            }
+        }
+
+        // Escuta a mudança na categoria
+        catSelect.addEventListener('change', filtrarProdutos);
+
+        // Roda uma vez ao carregar (caso o navegador tenha guardado o valor num refresh)
+        filtrarProdutos();
     });
 </script>
 
 <style>
-    /* Ajustes finos para Mobile */
-    
-    /* Input de quantidade limpo (sem setinhas padrão do navegador) */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-        -webkit-appearance: none; 
-        margin: 0; 
-    }
-    input[type=number] {
-        -moz-appearance: textfield;
-    }
-
-    /* Integração com Tema Escuro do base.html */
+    /* Ajustes para Mobile e Dark Mode */
     [data-bs-theme="dark"] .form-select-lg,
     [data-bs-theme="dark"] .form-control-lg {
-        background-color: var(--bg-body); /* Usa a cor de fundo do tema */
+        background-color: var(--bg-body);
         border-color: #495057;
         color: var(--text-main);
     }
-    
-    /* Destaque no foco */
     .form-control:focus, .form-select:focus {
-        border-color: #dc3545; /* Vermelho Bootstrap */
+        border-color: #dc3545;
         box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
     }
 </style>

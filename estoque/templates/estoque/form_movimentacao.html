@@ -1,50 +1,195 @@
 {% extends 'estoque/base.html' %}
 
-{% block title %}Registrar - Estoque{% endblock %}
+{% block title %}Nova Movimentação{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h3 class="mb-0 fs-5">Registrar Entrada/Saída</h3>
-            </div>
-            <div class="card-body">
+    <div class="col-md-8 col-lg-6">
+        
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-pencil-square text-primary"></i> Nova Movimentação</h4>
+            <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+        </div>
+
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-body p-4">
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                        <div>{{ form.non_field_errors.0 }}</div>
+                    </div>
+                {% endif %}
+
                 <form method="post">
                     {% csrf_token %}
-                    
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ field.label }}</label>
-                            {% if field.label == 'Quantidade' %}
-                                <div class="input-group">
-                                    <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(-1)">-</button>
-                                    {{ field }}
-                                    <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(1)">+</button>
-                                </div>
-                            {% else %}
-                            {{ field }}
-                            {% endif %}
 
-                            {% if field.errors %}
-                                <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-muted small text-uppercase mb-2">Tipo de Operação</label>
+                            
+                            <div class="d-flex gap-2 w-100">
+                                <input type="radio" class="btn-check" name="tipo" id="option_entrada" value="E" 
+                                    {% if form.tipo.value == 'E' %}checked{% endif %} required>
+                                <label class="btn btn-outline-success flex-fill py-3 fw-bold shadow-sm" for="option_entrada">
+                                    <i class="bi bi-box-arrow-in-down me-2"></i> ENTRADA
+                                </label>
+
+                                <input type="radio" class="btn-check" name="tipo" id="option_saida" value="S" 
+                                    {% if form.tipo.value == 'S' %}checked{% endif %}>
+                                <label class="btn btn-outline-danger flex-fill py-3 fw-bold shadow-sm" for="option_saida">
+                                    <i class="bi bi-box-arrow-up text-danger-emphasis me-2"></i> SAÍDA
+                                </label>
+                            </div>
+                            
+                            {% if form.tipo.errors %}
+                                <div class="text-danger small mt-1">{{ form.tipo.errors.0 }}</div>
                             {% endif %}
                         </div>
-                    {% endfor %}
 
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
-                    {% endif %}
+                        <hr class="text-muted opacity-25 my-4">
 
-                    <button type="submit" class="btn btn-success w-100">Salvar</button>
-                    <a href="{% url 'dashboard' %}" class="btn btn-secondary w-100 mt-2">Cancelar</a>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Categoria</label>
+                            {{ form.categoria }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Produto</label>
+                            {{ form.produto }}
+                            {% if form.produto.errors %}
+                                <div class="text-danger small">{{ form.produto.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Quantidade</label>
+                                <div class="input-group">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(-1)">-</button>
+                                    {{ form.quantidade }}
+                                    <button type="button" class="btn btn-outline-secondary" onclick="ajustarQtd(1)">+</button>
+                                </div>
+                            {% if form.quantidade.errors %}
+                                <div class="text-danger small">{{ form.quantidade.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <hr class="text-muted opacity-25 my-4">
+                        
+                        <div class="col-12">
+                            <h6 class="text-muted fw-bold mb-3"><i class="bi bi-person-badge"></i> Dados do Solicitante</h6>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small">Nome Completo</label>
+                            {{ form.solicitante_nome }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small">CPF (Obrigatório para Saídas)</label>
+                            {{ form.solicitante_cpf }}
+                            <div class="form-text small">Limite de 3 retiradas diárias por CPF.</div>
+                            {% if form.solicitante_cpf.errors %}
+                                <div class="text-danger small">{{ form.solicitante_cpf.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">
+                            SALVAR MOVIMENTAÇÃO
+                        </button>
+                    </div>
+
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+{{ produtos_data|json_script:"dados-produtos" }}
+
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // --- 1. LÓGICA DO CPF (Máscara e Validação) ---
+        const cpfInput = document.getElementById('id_cpf');
+        const form = document.querySelector('form');
+
+        if(cpfInput) {
+            cpfInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, "");
+                if (value.length > 11) value = value.slice(0, 11);
+                if (value.length > 9) value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, "$1.$2.$3-$4");
+                else if (value.length > 6) value = value.replace(/^(\d{3})(\d{3})(\d{3}).*/, "$1.$2.$3");
+                else if (value.length > 3) value = value.replace(/^(\d{3})(\d{3}).*/, "$1.$2");
+                e.target.value = value;
+            });
+
+            form.addEventListener('submit', function(e) {
+                // Apenas valida CPF se o campo não estiver vazio
+                const cpf = cpfInput.value.replace(/\D/g, '');
+                if (cpf.length > 0 && !validarCPF(cpf)) {
+                    e.preventDefault();
+                    alert("CPF Inválido! Corrija antes de salvar.");
+                    cpfInput.classList.add('is-invalid');
+                    cpfInput.focus();
+                }
+            });
+
+            function validarCPF(cpf) {
+                if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+                let soma = 0, resto;
+                for (let i = 1; i <= 9; i++) soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+                resto = (soma * 10) % 11;
+                if ((resto === 10) || (resto === 11)) resto = 0;
+                if (resto !== parseInt(cpf.substring(9, 10))) return false;
+                soma = 0;
+                for (let i = 1; i <= 10; i++) soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+                resto = (soma * 10) % 11;
+                if ((resto === 10) || (resto === 11)) resto = 0;
+                if (resto !== parseInt(cpf.substring(10, 11))) return false;
+                return true;
+            }
+        }
+
+        // --- 2. LÓGICA DE CATEGORIA E PRODUTO (Dropdown Encadeado) ---
+        const todosProdutos = JSON.parse(document.getElementById('dados-produtos').textContent);
+        const catSelect = document.getElementById('id_categoria');
+        const prodSelect = document.getElementById('id_produto');
+
+        function filtrarProdutos() {
+            const categoriaId = catSelect.value;
+            prodSelect.innerHTML = '<option value="" selected>Selecione o produto...</option>';
+
+            if (categoriaId) {
+                prodSelect.removeAttribute('disabled');
+                const produtosFiltrados = todosProdutos.filter(p => p.categoria_id == categoriaId);
+
+                if (produtosFiltrados.length > 0) {
+                    produtosFiltrados.forEach(prod => {
+                        const option = document.createElement('option');
+                        option.value = prod.id;
+                        option.textContent = `${prod.nome} (Qtd: ${prod.quantidade})`;
+                        prodSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.textContent = "Nenhum produto nesta categoria";
+                    prodSelect.appendChild(option);
+                }
+            } else {
+                prodSelect.setAttribute('disabled', 'true');
+                prodSelect.innerHTML = '<option value="" selected>← Escolha a categoria primeiro</option>';
+            }
+        }
+
+        catSelect.addEventListener('change', filtrarProdutos);
+        filtrarProdutos(); // Executa ao carregar
+    });
+
     function ajustarQtd(valor) {
         // Pega o input gerado pelo Django (o ID padrão é id_campo)
         const input = document.getElementById('id_quantidade');
@@ -64,4 +209,18 @@
         if (!input.value) input.value = 1;
     });
 </script>
+
+<style>
+    /* Integração Dark Mode para os Inputs */
+    [data-bs-theme="dark"] .form-select,
+    [data-bs-theme="dark"] .form-control {
+        background-color: var(--bg-body);
+        border-color: #495057;
+        color: var(--text-main);
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+</style>
 {% endblock %}
