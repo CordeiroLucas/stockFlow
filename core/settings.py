@@ -13,21 +13,16 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
+from dotenv import load_dotenv
+
+allowed_hosts_env = os.environ.get('ALLOWED_HOSTS')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = allowed_hosts_env.split(',')
+
+load_dotenv()  # Carrega as variáveis de ambiente do arquivo .env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET", "your-default-secret-key")
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -70,7 +65,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "core.wsgi.application"
+WSGI_APPLICATION = "core.wsgi.app"
 
 
 # Database
@@ -84,6 +79,7 @@ DATABASES = {
 }
 
 database_url = os.environ.get('DATABASE_URL')
+print(database_url)
 if database_url:
     DATABASES['default'] = dj_database_url.parse(database_url)
 
