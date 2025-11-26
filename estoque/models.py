@@ -57,18 +57,20 @@ class Movimentacao(models.Model):
                     'quantidade': f'Estoque insuficiente. Disponível: {self.produto.quantidade}.'
                 })
             
-            hoje_inicio = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            
-            # Conta quantas saídas esse CPF já fez hoje (excluio a atual se for edição)
-            saidas_hoje = Movimentacao.objects.filter(
-                tipo='S',
-                solicitante_cpf=self.solicitante_cpf,
-                created_at__gte=hoje_inicio
-            ).count()
+            # hoje_inicio = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-            # Se for uma criação nova e já tiver 3, bloqueia.
-            if not self.pk and saidas_hoje >= 3:
-                raise ValidationError(f"O CPF {self.solicitante_cpf} já atingiu o limite de 3 retiradas hoje.")
+            # VERIFICAR =======================================================
+    
+            # # Conta quantas saídas esse CPF já fez hoje (excluio a atual se for edição)
+            # saidas_hoje = Movimentacao.objects.filter(
+            #     tipo='S',
+            #     solicitante_cpf=self.solicitante_cpf,
+            #     created_at__gte=hoje_inicio
+            # ).count()
+
+            # # Se for uma criação nova e já tiver 3, bloqueia.
+            # if not self.pk and saidas_hoje >= 3:
+            #     raise ValidationError(f"O CPF {self.solicitante_cpf} já atingiu o limite de 3 retiradas hoje.")
 
     def save(self, *args, **kwargs):
         # Executa as validações (o clean não roda automaticamente no save por padrão)
