@@ -57,9 +57,9 @@ class Movimentacao(models.Model):
                     'quantidade': f'Estoque insuficiente. Disponível: {self.produto.quantidade}.'
                 })
             
+            hoje_inicio = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
             
-            
-            # Conta quantas saídas esse CPF já fez hoje (excluindo a atual se for edição)
+            # Conta quantas saídas esse CPF já fez hoje (excluio a atual se for edição)
             saidas_hoje = Movimentacao.objects.filter(
                 tipo='S',
                 solicitante_cpf=self.solicitante_cpf,
