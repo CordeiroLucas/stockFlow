@@ -1,6 +1,6 @@
 [project]
-name = "stockflow"
-version = "0.1.0"
+name = "estocka-ai"
+version = "0.1.4"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -10,4 +10,5 @@ dependencies = [
     "dj-database-url>=3.0.1",
     "psycopg2-binary>=2.9.11",
     "django-jazzmin>=3.0.1",
+    "whitenoise>=6.11.0",
 ]

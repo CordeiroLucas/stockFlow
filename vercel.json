@@ -7,11 +7,11 @@
     "routes": [
         {
             "src": "/static/(.*)",
-            "dest": "/static/$1"
+            "dest": "/core/staticfiles/$1"
         },
         {
             "src": "/(.*)",
-            "dest": "core/wsgi.py"
+            "dest": "core/stockFlow/wsgi.py"
         }
     ]
 }
