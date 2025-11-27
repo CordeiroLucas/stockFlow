@@ -2,7 +2,11 @@
 
 echo "🚀 Iniciando Build..."
 
-python3.9 -m pip install -r requirements.txt
-python3.9 manage.py collectstatic --noinput --clear
+# 1. NÃO precisamos instalar o pip aqui. 
+# O Vercel já leu o requirements.txt e instalou tudo automaticamente antes desse script rodar.
+
+# 2. Usamos 'python3' (o padrão do ambiente) em vez de forçar 'python3.9'
+echo "🎨 Coletando arquivos estáticos..."
+python3 manage.py collectstatic --noinput --clear
 
 echo "✅ Build Concluído!"
