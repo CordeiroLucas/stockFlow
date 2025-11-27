@@ -2,10 +2,7 @@
 
 echo "🚀 Iniciando Build..."
 
-pip install -r requirements.txt
-
-echo "🎨 Coletando arquivos estáticos..."
-
-python manage.py collectstatic --noinput
+python3.9 -m pip install -r requirements.txt
+python3.9 manage.py collectstatic --noinput --clear
 
 echo "✅ Build Concluído!"
