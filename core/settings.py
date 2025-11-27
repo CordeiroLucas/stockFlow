@@ -31,7 +31,7 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -69,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "core.wsgi.app"
+WSGI_APPLICATION = "core.wsgi.application"
 
 
 # Database
@@ -82,9 +82,9 @@ DATABASES = {
     }
 }
 
-database_url = os.environ.get('DATABASE_URL')
+database_url = os.environ.get("DATABASE_URL")
 if database_url:
-    DATABASES['default'] = dj_database_url.parse(database_url)
+    DATABASES["default"] = dj_database_url.parse(database_url)
 
 
 # Password validation
@@ -109,9 +109,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'pt-br'
+LANGUAGE_CODE = "pt-br"
 
-TIME_ZONE = 'America/Sao_Paulo'
+TIME_ZONE = "America/Sao_Paulo"
 
 USE_I18N = True
 USE_TZ = True
@@ -123,11 +123,11 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 # Define onde o collectstatic vai salvar os arquivos
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Opcional: Pastas extras onde você guarda seus próprios CSS
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -140,27 +140,23 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Configurações do DJANGO JAZZMIN
 JAZZMIN_SETTINGS = {
-    
     "site_title": "Estocka-Ai Admin",
     "site_header": "Estocka-Ai",
     "site_brand": "Estocka-Ai",
     "welcome_sign": "Bem-vindo ao Gerenciador de Estoque",
     "copyright": "Estocka-Ai Ltd",
-    "search_model": "estoque.Produto", # Barra de busca global busca produtos
-    
-    "user_avatar": None, 
-
+    "search_model": "estoque.Produto",  # Barra de busca global busca produtos
+    "user_avatar": None,
     # Menu do Topo (Direita) - Aqui personalizamos os textos e ícones
     "usermenu_links": [
         {
             "name": "Suporte / GitHub",
             "url": "https://github.com/CordeiroLucas/stockFlow",
             "new_window": True,
-            "icon": "fas fa-headset", # Ícone de Headset
-            "permissions": ["auth.change_user"]
+            "icon": "fas fa-headset",  # Ícone de Headset
+            "permissions": ["auth.change_user"],
         },
     ],
-
     # Ícones do Menu (usando FontAwesome 5 Free)
     "icons": {
         "auth": "fas fa-users-cog",
@@ -170,7 +166,6 @@ JAZZMIN_SETTINGS = {
         "estoque.Produto": "fas fa-box-open",
         "estoque.Movimentacao": "fas fa-exchange-alt",
     },
-    
     # Ordem do Menu Lateral
     "order_with_respect_to": ["estoque", "auth"],
 }
@@ -203,8 +198,8 @@ JAZZMIN_UI_TWEAKS = {
         "info": "btn-info",
         "warning": "btn-warning",
         "danger": "btn-danger",
-        "success": "btn-success"
-    }
+        "success": "btn-success",
+    },
 }
 
 # Configurações de Login
