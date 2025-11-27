@@ -16,16 +16,42 @@ from datetime import datetime, timedelta
 
 @login_required
 def dashboard(request):
-    # Pega todos os produtos ordenados (a ordem é importante para a paginação não se perder)
-    produtos_list = Produto.objects.all().order_by('nome')
+    # 1. Começa com todos os produtos
+    # O select_related('categoria') é vital para performance (evita N+1 queries)
+    produtos_list = Produto.objects.all().select_related('categoria').order_by('nome')
     
-    paginator = Paginator(produtos_list, 10)
-    
+    # 2. Captura os dados do GET (da URL)
+    search_query = request.GET.get('search', '')
+    category_id = request.GET.get('categoria', '')
+
+    # 3. Aplica Filtro por Nome ou SKU
+    if search_query:
+        produtos_list = produtos_list.filter(
+            Q(nome__icontains=search_query) | 
+            Q(sku__icontains=search_query)
+        )
+
+    # 4. Aplica Filtro por Categoria
+    if category_id:
+        produtos_list = produtos_list.filter(categoria_id=category_id)
+
+    # 5. Paginação (Aplica APÓS filtrar)
+    paginator = Paginator(produtos_list, 10) # 10 por página
     page_number = request.GET.get('page')
-    
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'estoque/dashboard.html', {'page_obj': page_obj})
+    # 6. Busca categorias para preencher o dropdown
+    categorias = Categoria.objects.all()
+
+    context = {
+        'page_obj': page_obj,
+        'categorias': categorias,
+        # Passamos os filtros de volta para manter os campos preenchidos na tela
+        'search_query': search_query, 
+        'category_id': int(category_id) if category_id else '' 
+    }
+
+    return render(request, 'estoque/dashboard.html', context)
 
 @login_required
 def registrar_movimentacao(request):
