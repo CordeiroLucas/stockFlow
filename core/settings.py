@@ -31,6 +31,7 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -107,12 +109,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "pt-br"
+LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -121,10 +122,90 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+# Define onde o collectstatic vai salvar os arquivos
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Opcional: Pastas extras onde você guarda seus próprios CSS
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Configurações do DJANGO JAZZMIN
+JAZZMIN_SETTINGS = {
+    
+    "site_title": "Estocka-Ai Admin",
+    "site_header": "Estocka-Ai",
+    "site_brand": "Estocka-Ai",
+    "welcome_sign": "Bem-vindo ao Gerenciador de Estoque",
+    "copyright": "Estocka-Ai Ltd",
+    "search_model": "estoque.Produto", # Barra de busca global busca produtos
+    
+    "user_avatar": None, 
+
+    # Menu do Topo (Direita) - Aqui personalizamos os textos e ícones
+    "usermenu_links": [
+        {
+            "name": "Suporte / GitHub",
+            "url": "https://github.com/CordeiroLucas/stockFlow",
+            "new_window": True,
+            "icon": "fas fa-headset", # Ícone de Headset
+            "permissions": ["auth.change_user"]
+        },
+    ],
+
+    # Ícones do Menu (usando FontAwesome 5 Free)
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "estoque.Categoria": "fas fa-tags",
+        "estoque.Produto": "fas fa-box-open",
+        "estoque.Movimentacao": "fas fa-exchange-alt",
+    },
+    
+    # Ordem do Menu Lateral
+    "order_with_respect_to": ["estoque", "auth"],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-primary",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": True,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": True,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "darkly",
+    "dark_mode_theme": "darkly",
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
+}
 
 # Configurações de Login
 LOGIN_URL = "login"  # Se tentar acessar algo restrito, vai pra cá

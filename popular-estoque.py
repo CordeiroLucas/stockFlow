@@ -15,18 +15,55 @@ def popular():
 
     # Estrutura de dados solicitada
     dados = {
-        "Cookies": [],
-        "Cervejas": [],
-        "Refrigerantes": ["Guaraná", "Pepsi Zero"],
-        "Capsulas": [],
+        "Cookies": [
+            "Chocolícia",
+            "Oreo",
+            "Chocooky",
+            "Piraquê Leite Maltado",
+            "Cookie Toddy",
+            "Bauducco Gotas de Chocolate"
+        ],
+        "Cervejas": [
+            "Amstel",
+            "Heineken",
+            "Spaten",
+            "Stella Artois",
+            "Brahma Duplo Malte",
+            "Corona"
+        ],
+        "Refrigerantes": [
+            "Guaraná",
+            "Pepsi Zero",
+            "Coca-Cola Original",
+            "Coca-Cola Zero",
+            "Sprite",
+            "Fanta Laranja",
+            "Schweppes Citrus"
+        ],
+        "Capsulas": [
+            "Espresso Intenso",
+            "Ristretto",
+            "Lungo",
+            "Cappuccino",
+            "Caramel",
+            "Vanilla",
+            "Mogiana",
+            "Cerrado Mineiro"
+        ],
         "Salgadinho": [
             "Cheetos",
             "Cebolitos",
             "Doritos",
             "Torcida Churrasco",
             "Torcida Costela c Limao",
+            "Ruffles Original",
+            "Fandangos Presunto",
+            "Pringles Original"
         ],
     }
+
+    # login admin senha admin
+    # login usuario senha usuario
 
     for categoria_nome, produtos_lista in dados.items():
         # A. Cria ou Pega a Categoria (evita duplicatas)
