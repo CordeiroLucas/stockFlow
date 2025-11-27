@@ -12,10 +12,3 @@ dependencies = [
     "django-jazzmin>=3.0.1",
     "whitenoise>=6.11.0",
 ]
-
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-scripts = ["build_files.bash"]
