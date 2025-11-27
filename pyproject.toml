@@ -9,4 +9,5 @@ dependencies = [
     "python-dotenv>=1.2.1",
     "dj-database-url>=3.0.1",
     "psycopg2-binary>=2.9.11",
+    "django-jazzmin>=3.0.1",
 ]
