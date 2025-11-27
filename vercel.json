@@ -1,5 +1,7 @@
 {
     "version": 2,
+    "buildCommand": "sh build_files.bash",
+    "outputDirectory": "staticfiles",
     "builds": [
         {
             "src": "core/wsgi.py",
