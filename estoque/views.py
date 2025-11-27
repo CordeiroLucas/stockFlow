@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 
 from django.db.models import Q
 from django.db import transaction
@@ -15,8 +16,16 @@ from datetime import datetime, timedelta
 
 @login_required
 def dashboard(request):
-    produtos = Produto.objects.all().order_by('nome')
-    return render(request, 'estoque/dashboard.html', {'produtos': produtos})
+    # Pega todos os produtos ordenados (a ordem é importante para a paginação não se perder)
+    produtos_list = Produto.objects.all().order_by('nome')
+    
+    paginator = Paginator(produtos_list, 10)
+    
+    page_number = request.GET.get('page')
+    
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'estoque/dashboard.html', {'page_obj': page_obj})
 
 @login_required
 def registrar_movimentacao(request):
