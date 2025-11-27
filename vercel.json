@@ -9,7 +9,7 @@
         },
         {
             "source": "/(.*)",
-            "destination": "core/wsgi.py"
+            "destination": "/api/index.py"
         }
     ]
 }
