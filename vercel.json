@@ -1,12 +1,15 @@
 {
     "version": 2,
-    "buildCommand": "sh build_files.bash",
-    "outputDirectory": "staticfiles",
     "builds": [
         {
             "src": "core/wsgi.py",
             "use": "@vercel/python",
-            "config": { "maxLambdaSize": "15mb", "runtime": "python3.12" }
+            
+            "config": { 
+                "maxLambdaSize": "15mb", 
+                "runtime": "python3.12", 
+                "buildCommand": "sh build_files.bash" 
+            }
         }
     ],
     "routes": [
