@@ -1,8 +1,6 @@
 {
     "version": 2,
-    "buildCommand": "sh build_files.bash",
-    "outputDirectory": "staticfiles",
-    "rewrites": [
+    "routes": [
         {
             "src": "/static/(.*)",
             "dest": "/staticfiles/$1"
