@@ -1,7 +1,16 @@
 {
     "version": 2,
-    "buildCommand": "python3 manage.py collectstatic --noinput --clear",
-    "outputDirectory": "staticfiles",
+    "builds": [
+        {
+            "src": "core/wsgi.py",
+            "use": "@vercel/python",
+            
+            "config": { 
+                "maxLambdaSize": "15mb", 
+                "runtime": "python3.12"
+            }
+        }
+    ],
     "routes": [
         {
             "src": "/static/(.*)",
