@@ -16,6 +16,9 @@ from datetime import datetime, timedelta
 
 @login_required
 def dashboard(request):
+    if not request.user.is_superuser:
+        return redirect('registrar_saida_rapida')
+
     # 1. Começa com todos os produtos
     # O select_related('categoria') é vital para performance (evita N+1 queries)
     produtos_list = Produto.objects.all().select_related('categoria').order_by('nome')
@@ -55,6 +58,9 @@ def dashboard(request):
 
 @login_required
 def registrar_movimentacao(request):
+    if not request.user.is_superuser:
+        return redirect('registrar_saida_rapida')
+
     if request.method == 'POST':
         form = MovimentacaoForm(request.POST)
         if form.is_valid():
@@ -80,6 +86,9 @@ def registrar_movimentacao(request):
 
 @login_required
 def historico_movimentacoes(request):
+    if not request.user.is_superuser:
+        return redirect('registrar_saida_rapida')
+
     # Começa pegando TUDO, ordenado do mais recente para o mais antigo
     movimentacoes = Movimentacao.objects.all().select_related('produto').order_by('-created_at')
     
@@ -112,6 +121,9 @@ def historico_movimentacoes(request):
 
 @login_required
 def exportar_relatorio(request):
+    if not request.user.is_superuser:
+        return redirect('registrar_saida_rapida')
+    
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="relatorio_estoque.csv"'
     response.write(u'\ufeff'.encode('utf8'))

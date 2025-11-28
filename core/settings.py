@@ -147,15 +147,16 @@ JAZZMIN_SETTINGS = {
     "copyright": "Estocka-Ai Ltd",
     "search_model": "estoque.Produto",  # Barra de busca global busca produtos
     "user_avatar": None,
+
     # Menu do Topo (Direita) - Aqui personalizamos os textos e ícones
     "usermenu_links": [
         {
-            "name": "Suporte / GitHub",
-            "url": "https://github.com/CordeiroLucas/stockFlow",
+            "name": "Website",
+            "url": "dashboard",
             "new_window": True,
-            "icon": "fas fa-headset",  # Ícone de Headset
-            "permissions": ["auth.change_user"],
+            "icon": "fas fa-globe", # Ícone personalizado
         },
+        
     ],
     # Ícones do Menu (usando FontAwesome 5 Free)
     "icons": {
