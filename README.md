@@ -201,6 +201,10 @@ O sistema possui suporte nativo a **Dark Mode** (Modo Escuro).
 
 ## 🔮 Roadmap (Futuro)
 
+* [ ] **Registrar Nome na Movimentação:** Implementar Registro automático do nome do usuário no registro rápido, para sabermos quem realizou a movimentação.
+* [ ] **Retirar Permissão Editar Histórico:** Histórico apenas servirá para auditoria e não poderá ser editado 
+
+
 Melhorias planejadas para as próximas versões:
 
 * [ ] **Dashboard Gráfico:** Implementar `Chart.js` para visualizar tendências de consumo e produtos mais retirados.
