@@ -86,34 +86,41 @@ def registrar_movimentacao(request):
 
 @login_required
 def historico_movimentacoes(request):
+    # 1. TRAVA DE SEGURANÇA (Mantendo o que fizemos antes)
     if not request.user.is_superuser:
-        return redirect('registrar_saida_rapida')
+        return redirect('saida_rapida')
 
-    # Começa pegando TUDO, ordenado do mais recente para o mais antigo
-    movimentacoes = Movimentacao.objects.all().select_related('produto').order_by('-created_at')
+    # 2. BASE DA CONSULTA
+    movimentacoes = Movimentacao.objects.all().select_related('produto', 'produto__categoria').order_by('-created_at')
     
-    # Captura os filtros do formulário (se houver)
-    busca_produto = request.GET.get('produto')
-    busca_tipo = request.GET.get('tipo')
-    data_inicio = request.GET.get('data_inicio')
-    data_fim = request.GET.get('data_fim')
+    # 3. FILTROS (Mantém a lógica existente)
+    categorias = Categoria.objects.all() 
+    busca_produto = request.GET.get('produto', '')
+    busca_tipo = request.GET.get('tipo', '')
+    busca_categoria = request.GET.get('categoria', '')
+    data_inicio = request.GET.get('data_inicio', '')
+    data_fim = request.GET.get('data_fim', '')
 
-    # Aplica os filtros SE eles existirem
     if busca_produto:
         movimentacoes = movimentacoes.filter(produto__nome__icontains=busca_produto)
-    
     if busca_tipo:
         movimentacoes = movimentacoes.filter(tipo=busca_tipo)
-        
+    if busca_categoria:
+        movimentacoes = movimentacoes.filter(produto__categoria_id=busca_categoria)
     if data_inicio:
         movimentacoes = movimentacoes.filter(created_at__date__gte=data_inicio)
-        
     if data_fim:
         movimentacoes = movimentacoes.filter(created_at__date__lte=data_fim)
 
+    # 4. PAGINAÇÃO (AQUI É A NOVIDADE)
+    paginator = Paginator(movimentacoes, 10) # 20 itens por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'movimentacoes': movimentacoes,
-        # Passamos os valores de volta para manter o formulário preenchido após a busca
+        'page_obj': page_obj, # Enviamos o objeto paginado, não mais a lista completa
+        'categorias': categorias,
+        # Passamos o request.GET inteiro para facilitar o preenchimento do form
         'filtros': request.GET 
     }
     

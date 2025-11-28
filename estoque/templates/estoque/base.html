@@ -103,7 +103,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-custom mb-4 px-4">
+<nav class="navbar sticky-top navbar-expand-lg navbar-custom mb-4 px-4">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="{% if user.is_authenticated and user.is_superuser %}{% url 'dashboard' %}{% else %}{% url 'registrar_saida_rapida' %}{% endif %}">
                 <i class="bi bi-box-seam"></i> Estocka-Ai
@@ -115,6 +115,12 @@
                     <span class="me-3 d-none d-md-block fw-bold small">
                         Olá, {{ user.username }}
                     </span>
+
+                    {% if user.is_superuser %}
+                        <a href="{% url 'admin:index' %}" class="btn btn-outline-warning btn-sm me-3" title="Painel Administrativo" target="_blank">
+                            <i class="bi bi-shield-lock-fill"></i> Admin
+                        </a>
+                    {% endif %}
 
                     <form action="{% url 'logout' %}" method="post" class="d-inline">
                         {% csrf_token %}

@@ -19,12 +19,6 @@
                 <a href="{% url 'historico' %}" class="btn btn-outline-secondary text-nowrap shadow-sm">
                     <i class="bi bi-clock-history"></i> Ver Histórico
                 </a>
-
-                {% if user.is_superuser %}
-                <a href="{% url 'admin:index' %}" class="btn btn-outline-warning btn-sm me-3" title="Painel Administrativo" target="_blank">
-                    <i class="bi bi-shield-lock-fill"></i> Admin
-                </a>
-                {% endif %}
             </div>
         </div>
 
@@ -114,39 +108,40 @@
             </div>
         </div>
     </div>
+    <div class="text-muted small mt-1 mb-3">
+        Total de registros: {{ page_obj.paginator.count }}
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-center mt-1">
+            <nav>
+                <ul class="pagination shadow-sm">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&categoria={{ category_id }}">
+                                &laquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                    {% endif %}
 
-    {% if page_obj.has_other_pages %}
-    <div class="d-flex justify-content-center mt-4">
-        <nav>
-            <ul class="pagination shadow-sm">
-                {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&categoria={{ category_id }}">
-                            &laquo;
-                        </a>
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                        </span>
                     </li>
-                {% else %}
-                    <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-                {% endif %}
 
-                <li class="page-item active">
-                    <span class="page-link">
-                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                    </span>
-                </li>
-
-                {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&categoria={{ category_id }}">
-                            &raquo;
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-                {% endif %}
-            </ul>
-        </nav>
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&categoria={{ category_id }}">
+                                &raquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
-
 {% endblock %}
