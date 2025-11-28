@@ -1,4 +1,4 @@
-# 📦 StockFlow - Sistema de Controle de Estoque
+# 📦 Estocka-Ai - Sistema de Controle de Estoque
 
 Um sistema de gerenciamento de estoque escalável, seguro e moderno, desenvolvido com **Django**. O projeto utiliza uma arquitetura robusta com validações de integridade, interface **Mobile-First** para operações rápidas e está totalmente configurado para deploy serverless na **Vercel**.
 
