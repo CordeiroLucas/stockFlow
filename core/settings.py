@@ -153,7 +153,7 @@ JAZZMIN_SETTINGS = {
         {
             "name": "Website",
             "url": "dashboard",
-            "new_window": True,
+            "new_window": False,
             "icon": "fas fa-globe", # Ícone personalizado
         },
         
