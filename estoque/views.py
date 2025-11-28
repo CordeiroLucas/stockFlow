@@ -5,14 +5,12 @@ from .forms import MovimentacaoForm, SaidaRapidaForm
 
 import csv
 from django.http import HttpResponse
-from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db import transaction
-from datetime import datetime, timedelta
 
 @login_required
 def dashboard(request):
@@ -55,6 +53,42 @@ def dashboard(request):
     }
 
     return render(request, 'estoque/dashboard.html', context)
+
+@login_required
+def recalcular_estoque(request):
+    # 1. Segurança: Só admin pode fazer isso
+    if not request.user.is_superuser:
+        return redirect('registrar_saida_rapida')
+
+    produtos = Produto.objects.all()
+    atualizados = 0
+
+    for produto in produtos:
+        # Soma todas as Entradas
+        total_entradas = produto.movimentacoes.filter(tipo='E').aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+
+        # Soma todas as Saídas
+        total_saidas = produto.movimentacoes.filter(tipo='S').aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+
+        # Calcula o Saldo Real
+        saldo_real = total_entradas - total_saidas
+
+        # Proteção contra negativo (caso o banco tenha sido manipulado erradamente)
+        if saldo_real < 0:
+            saldo_real = 0
+
+        # Atualiza apenas se houver divergência (para economizar processamento)
+        if produto.quantidade != saldo_real:
+            produto.quantidade = saldo_real
+            produto.save()
+            atualizados += 1
+
+    if atualizados > 0:
+        messages.warning(request, f"Sincronização concluída! {atualizados} produtos tiveram o saldo corrigido.")
+    else:
+        messages.success(request, "O estoque já estava 100% sincronizado.")
+
+    return redirect('dashboard')
 
 @login_required
 def registrar_movimentacao(request):
