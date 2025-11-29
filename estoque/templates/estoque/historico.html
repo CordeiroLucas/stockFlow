@@ -76,10 +76,17 @@
                             <td>{{ mov.quantidade }}</td>
                             
                             <td>
-                                <span class="badge bg-light text-dark border">
-                                    <i class="bi bi-person-circle"></i> 
+                                {% if mov.usuario.is_superuser %}
+                                <span class="badge rounded-pill bg-warning text-dark border border-warning shadow-sm" title="Administrador">
+                                    <i class="bi bi-shield-lock-fill me-1"></i>
+                                    {{ mov.usuario.username|default:"Admin" }}
+                                </span>
+                                {% else %}
+                                <span class="badge rounded-pill bg-light text-dark border">
+                                    <i class="bi bi-person-fill text-muted me-1"></i>
                                     {{ mov.usuario.username|default:"Sistema" }}
                                 </span>
+                                {% endif %}
                             </td>
 
                             <td>

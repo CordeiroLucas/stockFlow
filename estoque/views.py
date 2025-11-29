@@ -187,30 +187,49 @@ def historico_movimentacoes(request):
 
 @login_required
 def exportar_relatorio(request):
-    if not request.user.is_superuser:
-        return redirect('registrar_saida_rapida')
-    
+    # 1. Configuração do Arquivo
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="relatorio_estoque.csv"'
-    response.write(u'\ufeff'.encode('utf8'))
+    response.write(u'\ufeff'.encode('utf8')) # BOM para Excel ler acentos
     writer = csv.writer(response, delimiter=';')
 
-    writer.writerow(['Data/Hora', 'Tipo', 'Produto', 'Quantidade', 'Solicitante', 'CPF'])
+    # 2. Cabeçalho Atualizado
+    writer.writerow([
+        'Data/Hora', 
+        'Tipo', 
+        'Produto', 
+        'Categoria', 
+        'Quantidade', 
+        'Responsável (Logado)', # Quem fez (User)
+        'Destinatário',         # Quem recebeu (Texto)
+        'CPF', 
+        'Observação'            # Novo campo
+    ])
 
-    # 1. Base da consulta
-    movimentacoes = Movimentacao.objects.all().select_related('produto').order_by('-created_at')
+    # 3. Consulta Otimizada
+    # Adicionamos 'usuario' no select_related para evitar lentidão
+    movimentacoes = Movimentacao.objects.all().select_related(
+        'produto', 
+        'produto__categoria', 
+        'usuario'
+    ).order_by('-created_at')
 
-    # 2. APLICAÇÃO DOS FILTROS (Igualzinho à view de histórico)
+    # 4. Aplicação dos Filtros (Mesma lógica do Histórico)
     busca_produto = request.GET.get('produto')
     busca_tipo = request.GET.get('tipo')
+    busca_categoria = request.GET.get('categoria')
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
+    busca_usuario = request.GET.get('usuario') # Se quiser filtrar por responsável também
 
     if busca_produto:
         movimentacoes = movimentacoes.filter(produto__nome__icontains=busca_produto)
     
     if busca_tipo:
         movimentacoes = movimentacoes.filter(tipo=busca_tipo)
+
+    if busca_categoria:
+        movimentacoes = movimentacoes.filter(produto__categoria_id=busca_categoria)
         
     if data_inicio:
         movimentacoes = movimentacoes.filter(created_at__date__gte=data_inicio)
@@ -218,15 +237,22 @@ def exportar_relatorio(request):
     if data_fim:
         movimentacoes = movimentacoes.filter(created_at__date__lte=data_fim)
 
-    # 3. Escreve os dados filtrados
+    # 5. Escrita das Linhas
     for mov in movimentacoes:
+        # Tratamento de dados nulos
+        cat_nome = mov.produto.categoria.nome if mov.produto.categoria else '-'
+        responsavel = mov.usuario.username if mov.usuario else 'Sistema/Admin'
+        
         writer.writerow([
             mov.created_at.strftime('%d/%m/%Y %H:%M'),
             mov.get_tipo_display(),
             mov.produto.nome,
+            cat_nome,
             mov.quantidade,
-            mov.solicitante_nome or '-',
-            mov.solicitante_cpf or '-'
+            responsavel,                    # Coluna Nova
+            mov.solicitante_nome or '-',    # Coluna Alterada (Destino)
+            mov.solicitante_cpf or '-',
+            mov.observacao or '-'           # Coluna Nova
         ])
 
     return response
