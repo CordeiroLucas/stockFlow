@@ -73,29 +73,49 @@ class ProdutoAdmin(admin.ModelAdmin):
 @admin.register(Movimentacao)
 class MovimentacaoAdmin(admin.ModelAdmin):
     list_display = ('data_formatada', 'badge_tipo', 'produto', 'quantidade', 'solicitante_info')
-    list_filter = ('tipo', 'created_at', 'produto__categoria') # Filtros poderosos
+    list_filter = ('tipo', 'created_at', 'produto__categoria')
     search_fields = ('produto__nome', 'solicitante_nome', 'solicitante_cpf')
-    date_hierarchy = 'created_at' # Cria uma navegação por data no topo
+    date_hierarchy = 'created_at'
     
-    # Como é um log, sugerimos deixar tudo readonly para auditoria
+    # 1. PERMISSÕES: Garantir a Integridade do Histórico
+    
     def has_add_permission(self, request):
-        return False # Obriga a usar o Dashboard/App para criar, não o Admin
+        # Permite criar novas movimentações (para fins de ajuste/estorno)
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        # PROIBIDO: Não pode alterar nada que já foi salvo
+        return False
 
     def has_delete_permission(self, request, obj=None):
-        return False # Impede apagar histórico pelo admin (Segurança)
+        # PROIBIDO: Não pode apagar histórico
+        return False
 
+    # 2. VISUALIZAÇÃO: Transformar campos em texto ao visualizar
+    
+    def get_readonly_fields(self, request, obj=None):
+        # Se 'obj' existe, significa que estamos visualizando um registro antigo.
+        # Nesse caso, TODOS os campos ficam somente-leitura.
+        if obj:
+            return [f.name for f in self.model._meta.fields]
+        # Se 'obj' é None, estamos criando um novo, então deixa editar.
+        return []
+
+    # 3. MÉTODOS VISUAIS (Badges e Formatação)
+    
     def data_formatada(self, obj):
         return obj.created_at.strftime('%d/%m/%Y %H:%M')
     data_formatada.short_description = 'Data/Hora'
 
     def badge_tipo(self, obj):
         if obj.tipo == 'E':
-            return format_html('<span style="color:green;">⬇ Entrada</span>')
-        return format_html('<span style="color:red;">⬆ Saída</span>')
+            return format_html('<span style="color:green; font-weight:bold;">⬇ Entrada</span>')
+        return format_html('<span style="color:red; font-weight:bold;">⬆ Saída</span>')
     badge_tipo.short_description = 'Operação'
 
     def solicitante_info(self, obj):
         if obj.solicitante_nome:
-            return f"{obj.solicitante_nome} ({obj.solicitante_cpf or 'S/ CPF'})"
+            cpf = obj.solicitante_cpf or 'S/ CPF'
+            return f"{obj.solicitante_nome} ({cpf})"
         return "-"
     solicitante_info.short_description = 'Responsável'
