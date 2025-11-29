@@ -8,47 +8,40 @@ django.setup()
 
 # 2. Importa os Models (só funciona depois do django.setup())
 from estoque.models import Categoria, Produto
-
+from django.contrib.auth.models import User
 
 def popular():
     print("🚀 Iniciando povoamento do banco de dados...\n")
 
+    # --- PARTE 1: CRIAR SUPERUSUÁRIO (ADMIN) ---
+    print("👤 Verificando usuário Admin...")
+    if not User.objects.filter(username='admin').exists():
+        # Cria o superusuário (usuario, email, senha)
+        User.objects.create_superuser('admin', 'admin@exemplo.com', 'admin')
+        print("   ✅ Superusuário 'admin' criado com senha 'admin'.")
+    else:
+        print("   ℹ️ Superusuário 'admin' já existe.")
+
+    print("-" * 30)
+
     # Estrutura de dados solicitada
     dados = {
         "Cookies": [
-            "Chocolícia",
-            "Oreo",
-            "Chocooky",
-            "Piraquê Leite Maltado",
-            "Cookie Toddy",
-            "Bauducco Gotas de Chocolate"
+            "Negresco",
         ],
         "Cervejas": [
             "Amstel",
-            "Heineken",
-            "Spaten",
-            "Stella Artois",
-            "Brahma Duplo Malte",
-            "Corona"
         ],
         "Refrigerantes": [
             "Guaraná",
             "Pepsi Zero",
             "Coca-Cola Original",
             "Coca-Cola Zero",
-            "Sprite",
-            "Fanta Laranja",
-            "Schweppes Citrus"
         ],
         "Capsulas": [
             "Espresso Intenso",
-            "Ristretto",
-            "Lungo",
             "Cappuccino",
-            "Caramel",
-            "Vanilla",
-            "Mogiana",
-            "Cerrado Mineiro"
+            "Chocolatto"
         ],
         "Salgadinho": [
             "Cheetos",
@@ -56,9 +49,6 @@ def popular():
             "Doritos",
             "Torcida Churrasco",
             "Torcida Costela c Limao",
-            "Ruffles Original",
-            "Fandangos Presunto",
-            "Pringles Original"
         ],
     }
 

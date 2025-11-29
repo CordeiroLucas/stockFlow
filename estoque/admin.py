@@ -33,11 +33,15 @@ class MovimentacaoInline(admin.TabularInline):
 # 3. Configuração do Produto
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'categoria', 'sku', 'status_estoque', 'preco')
-    list_filter = ('categoria', 'quantidade') # Filtro lateral
+    list_display = ('nome', 'categoria', 'quantidade', 'sku', 'status_estoque')
+    list_filter = ('categoria',)
     search_fields = ('nome', 'sku')
-    readonly_fields = ('quantidade',) # Quantidade é calculada, ninguém mexe!
+    
+    # O SKU agora é somente leitura, assim como a Quantidade
+    readonly_fields = ('quantidade', 'sku') 
+    
     inlines = [MovimentacaoInline]
+    
     list_per_page = 20
 
     # Organização visual do formulário de edição

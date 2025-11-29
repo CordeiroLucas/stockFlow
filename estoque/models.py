@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.contrib.auth.models import User
+import random
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=50, unique=True)
@@ -15,7 +16,7 @@ class Categoria(models.Model):
 class Produto(models.Model):
     nome = models.CharField(max_length=100)
     sku = models.CharField(max_length=20, unique=True, null=True, blank=True) # Código do produto
-    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True, related_name='produtos')
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT, related_name='produtos')
     quantidade = models.PositiveIntegerField(default=0)
     preco = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
     
@@ -25,6 +26,25 @@ class Produto(models.Model):
     def clean(self):
         if self.quantidade < 0:
             raise ValidationError("O estoque não pode ser negativo.")
+        
+    def save(self, *args, **kwargs):
+        # Apenas gera se o SKU estiver vazio e tivermos uma categoria selecionada
+        if not self.sku and self.categoria:
+            # Pega as 3 primeiras letras da categoria (Ex: "Refrigerante" -> "REF")
+            prefixo = self.categoria.nome[:3].upper()
+            
+            # Gera 4 números aleatórios
+            aleatorio = random.randint(1000, 9999)
+            
+            # Monta o SKU final
+            self.sku = f"{prefixo}-{aleatorio}"
+            
+            # (Opcional) Loop simples para garantir que não gere um duplicado (muito raro acontecer)
+            while Produto.objects.filter(sku=self.sku).exists():
+                aleatorio = random.randint(1000, 9999)
+                self.sku = f"{prefixo}-{aleatorio}"
+
+        super().save(*args, **kwargs)
 
 class Movimentacao(models.Model):
     TIPO_CHOICES = (
