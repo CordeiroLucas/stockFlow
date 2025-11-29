@@ -238,7 +238,7 @@ def registrar_saida_rapida(request):
                 with transaction.atomic():
                     movimentacao = form.save(commit=False)
                     movimentacao.tipo = 'S'
-                    movimentacao.solicitante_nome = "Saída Rápida (Mobile)"
+                    movimentacao.solicitante_nome = request.user.get_full_name() or request.user.username
                     movimentacao.solicitante_cpf = None
                     movimentacao.save() # Se isso gerar erro de saldo, o 'atomic' desfaz a criação
 
