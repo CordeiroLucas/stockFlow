@@ -3,6 +3,14 @@ from django.core.exceptions import ValidationError
 from .models import Movimentacao, Categoria, Produto
 import re
 
+from django.contrib.auth.forms import AuthenticationForm
+
+class CustomLoginForm(AuthenticationForm):
+    lembrar_me = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
 # Função auxiliar para calcular o dígito verificador
 def calcular_digito(cpf, peso):
     soma = 0

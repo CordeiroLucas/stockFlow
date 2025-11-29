@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Produto, Movimentacao, Categoria
-from .forms import MovimentacaoForm, SaidaRapidaForm
+from .forms import MovimentacaoForm, SaidaRapidaForm, CustomLoginForm
 
 import csv
 from django.http import HttpResponse
@@ -11,6 +11,28 @@ from django.core.paginator import Paginator
 
 from django.db.models import Q, Sum
 from django.db import transaction
+
+from django.contrib.auth.views import LoginView
+
+class CustomLoginView(LoginView):
+    form_class = CustomLoginForm
+    template_name = 'estoque/login.html'
+
+    def form_valid(self, form):
+        # Chama a lógica padrão de login (autentica o usuário)
+        response = super().form_valid(form)
+        
+        # Lógica do "Lembrar-me"
+        lembrar_me = form.cleaned_data.get('lembrar_me')
+        
+        if lembrar_me:
+            # Sessão persiste (padrão do Django é 2 semanas)
+            self.request.session.set_expiry(1209600) 
+        else:
+            # Sessão expira ao fechar o navegador
+            self.request.session.set_expiry(0)
+            
+        return response
 
 @login_required
 def dashboard(request):
