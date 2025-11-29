@@ -56,7 +56,7 @@ class MovimentacaoForm(forms.ModelForm):
 
     class Meta:
         model = Movimentacao
-        fields = ['tipo', 'categoria', 'produto', 'quantidade', 'solicitante_nome', 'solicitante_cpf']
+        fields = ['tipo', 'categoria', 'produto', 'quantidade', 'observacao', 'solicitante_nome', 'solicitante_cpf']
         
         widgets = {
             # MUDANÇA AQUI: Alteramos para RadioSelect
@@ -64,13 +64,24 @@ class MovimentacaoForm(forms.ModelForm):
             
             'produto': forms.Select(attrs={'class': 'form-select', 'disabled': 'true'}),
             'quantidade': forms.NumberInput(attrs={'class': 'form-control'}),
-            'solicitante_nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'solicitante_nome': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Quem vai receber o item? (Opcional)'
+            }),
             'solicitante_cpf': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_cpf', 'placeholder': '000.000.000-00', 'maxlength': '14'}),
+            'observacao': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 3, 
+                'placeholder': 'Ex: Compra NF 123 ou Ajuste de Estoque'
+            }),
+        }
+        labels = {
+            'solicitante_nome': 'Destinatário / Solicitante',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Carrega produtos ordenados
+        self.fields['solicitante_nome'].required = False
         self.fields['produto'].queryset = Produto.objects.all().order_by('nome')
 
     def clean_solicitante_cpf(self):

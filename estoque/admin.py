@@ -72,11 +72,79 @@ class ProdutoAdmin(admin.ModelAdmin):
 # 4. Configuração da Movimentação (Log Geral)
 @admin.register(Movimentacao)
 class MovimentacaoAdmin(admin.ModelAdmin):
-    list_display = ('data_formatada', 'badge_tipo', 'produto', 'quantidade', 'solicitante_info')
-    list_filter = ('tipo', 'created_at', 'produto__categoria')
+    list_display = ('data_formatada', 'badge_tipo', 'produto', 'quantidade', 'usuario', 'solicitante_info', 'observacao_curta')
+    list_filter = ('tipo', 'usuario', 'created_at', 'produto__categoria')
     search_fields = ('produto__nome', 'solicitante_nome', 'solicitante_cpf')
     date_hierarchy = 'created_at'
     
+    # Define quais campos aparecem no formulário de criação
+    fields = ('tipo', 'produto', 'quantidade', 'solicitante_nome', 'solicitante_cpf', 'observacao')
+
+    # --- 1. SEGURANÇA: Captura o Admin Logado ---
+    def save_model(self, request, obj, form, change):
+        """
+        Esse método roda antes de salvar no banco pelo Admin.
+        Aqui injetamos o usuário logado automaticamente.
+        """
+        # Se o campo usuário estiver vazio (sempre estará na criação via admin)
+        if not obj.usuario:
+            obj.usuario = request.user
+            
+        # Se não preencheu o destinatário, marcamos como Ajuste Administrativo
+        if not obj.solicitante_nome:
+            obj.solicitante_nome = f"Ajuste Admin ({request.user.username})"
+            
+        super().save_model(request, obj, form, change)
+
+    # --- 2. PERMISSÕES: Histórico Imutável ---
+    
+    def has_add_permission(self, request):
+        return True # Permite criar estornos/ajustes
+
+    def has_change_permission(self, request, obj=None):
+        return False # Bloqueia edição de passado
+
+    def has_delete_permission(self, request, obj=None):
+        return False # Bloqueia apagar histórico
+
+    # --- 3. VISUALIZAÇÃO ---
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj: # Se for visualização, trava tudo
+            return [f.name for f in self.model._meta.fields]
+        return []
+
+    # Métodos de formatação visual (Badges, Datas, etc)
+    def data_formatada(self, obj):
+        return obj.created_at.strftime('%d/%m/%Y %H:%M')
+    data_formatada.short_description = 'Data/Hora'
+
+    def badge_tipo(self, obj):
+        if obj.tipo == 'E':
+            return format_html('<span style="color:green; font-weight:bold;">⬇ Entrada</span>')
+        return format_html('<span style="color:red; font-weight:bold;">⬆ Saída</span>')
+    badge_tipo.short_description = 'Operação'
+
+    def solicitante_info(self, obj):
+        return f"{obj.solicitante_nome or '-'} {obj.solicitante_cpf or ''}"
+    solicitante_info.short_description = 'Destinatário'
+
+    def observacao_curta(self, obj):
+        if obj.observacao:
+            return (obj.observacao[:30] + '..') if len(obj.observacao) > 30 else obj.observacao
+        return "-"
+    observacao_curta.short_description = 'Obs'
+    list_display = ('data_formatada', 'badge_tipo', 'produto', 'quantidade', 'usuario', 'solicitante_info', 'observacao_curta')
+    list_filter = ('tipo', 'usuario', 'created_at', 'produto__categoria')
+    search_fields = ('produto__nome', 'solicitante_nome', 'solicitante_cpf')
+    date_hierarchy = 'created_at'
+    
+    def observacao_curta(self, obj):
+        if obj.observacao:
+            return (obj.observacao[:30] + '..') if len(obj.observacao) > 30 else obj.observacao
+        return "-"
+    observacao_curta.short_description = 'Obs'
+
     # 1. PERMISSÕES: Garantir a Integridade do Histórico
     
     def has_add_permission(self, request):
@@ -118,4 +186,4 @@ class MovimentacaoAdmin(admin.ModelAdmin):
             cpf = obj.solicitante_cpf or 'S/ CPF'
             return f"{obj.solicitante_nome} ({cpf})"
         return "-"
-    solicitante_info.short_description = 'Responsável'
+    solicitante_info.short_description = 'Destino'

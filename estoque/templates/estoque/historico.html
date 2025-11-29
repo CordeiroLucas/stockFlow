@@ -55,15 +55,14 @@
                             <th class="ps-3">Data/Hora</th>
                             <th>Tipo</th>
                             <th>Produto</th>
-                            <th>Qtd</th>
-                            <th>Solicitante</th>
-                            <th>CPF</th>
+                            <th>Obs.</th>
+                            <th>Qtd</th>    
+                            <th>Responsável (Origem)</th> <th>Destinatário</th>         <th>Obs</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for mov in page_obj %}
                         <tr>
-                            <td class="ps-3">{{ mov.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ mov.created_at|date:"d/m H:i" }}</td>
                             <td>
                                 {% if mov.tipo == 'E' %}
                                     <span class="badge bg-success">Entrada</span>
@@ -73,18 +72,27 @@
                             </td>
                             <td class="fw-bold">{{ mov.produto.nome }}</td>
                             <td>{{ mov.quantidade }}</td>
-                            <td>{{ mov.solicitante_nome|default:"-" }}</td>
+                            
                             <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-person-circle"></i> 
+                                    {{ mov.usuario.username|default:"Sistema" }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ mov.solicitante_nome|default:"-" }}
                                 {% if mov.solicitante_cpf %}
-                                    <code>{{ mov.solicitante_cpf }}</code>
-                                {% else %} - {% endif %}
+                                    <br><small class="text-muted">{{ mov.solicitante_cpf }}</small>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if mov.observacao %}
+                                    <i class="bi bi-info-circle" title="{{ mov.observacao }}"></i>
+                                {% endif %}
                             </td>
                         </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4">Nenhuma movimentação encontrada.</td>
-                        </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             </div>

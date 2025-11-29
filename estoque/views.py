@@ -114,30 +114,33 @@ def recalcular_estoque(request):
 
 @login_required
 def registrar_movimentacao(request):
-    if not request.user.is_superuser:
-        return redirect('registrar_saida_rapida')
-
     if request.method == 'POST':
         form = MovimentacaoForm(request.POST)
         if form.is_valid():
             try:
-                with transaction.atomic(): 
-                    form.save()
+                with transaction.atomic():
+                    movimentacao = form.save(commit=False)
+                    
+                    # 1. ORIGEM (Responsável): Pega automaticamente do login
+                    movimentacao.usuario = request.user 
+                    
+                    # 2. DESTINO (Solicitante):
+                    # Se o campo de texto estiver vazio, assumimos que o responsável pegou para si mesmo
+                    if not movimentacao.solicitante_nome:
+                        movimentacao.solicitante_nome = request.user.get_full_name() or request.user.username
 
+                    movimentacao.save()
+                    
                 messages.success(request, "Movimentação registrada com sucesso!")
                 return redirect('dashboard')
             except ValidationError as e:
                 form.add_error(None, e)
     else:
         form = MovimentacaoForm()
-        
+
+    # ... (resto do código igual) ...
     produtos_data = Produto.objects.all().values('id', 'nome', 'quantidade', 'categoria_id').order_by('nome')
-
-    context = {
-        'form': form,
-        'produtos_data': list(produtos_data) # Envia para o template
-    }
-
+    context = {'form': form, 'produtos_data': list(produtos_data)}
     return render(request, 'estoque/form_movimentacao.html', context)
 
 @login_required
@@ -234,17 +237,18 @@ def registrar_saida_rapida(request):
         form = SaidaRapidaForm(request.POST)
         if form.is_valid():
             try:
-                # BLINDAGEM
                 with transaction.atomic():
                     movimentacao = form.save(commit=False)
                     movimentacao.tipo = 'S'
-                    movimentacao.solicitante_nome = request.user.get_full_name() or request.user.username
+                    # 1. ORIGEM: Automático
+                    movimentacao.usuario = request.user
+                    # 2. DESTINO: Na saída rápida mobile, geralmente é para o próprio usuário
+                    # Mas se quiser deixar vazio ou preencher, aqui definimos o padrão:
+                    movimentacao.solicitante_nome = "Saída Rápida"
                     movimentacao.solicitante_cpf = None
-                    movimentacao.save() # Se isso gerar erro de saldo, o 'atomic' desfaz a criação
-
-                messages.success(request, f"Saída de {movimentacao.quantidade}x {movimentacao.produto.nome} registrada!")
-                return redirect('registrar_saida_rapida')
-
+                    movimentacao.save()
+                    
+                messages.success(request, f"Saída registrada!")
             except ValidationError as e:
                 form.add_error(None, e)
     else:

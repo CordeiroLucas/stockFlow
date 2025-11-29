@@ -76,6 +76,12 @@
                             {% endif %}
                         </div>
 
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Observação / Motivo</label>
+                            {{ form.observacao }}
+                            <div class="form-text small">Opcional. Útil para registrar número de Nota Fiscal ou motivo de estorno.</div>
+                        </div>
+
                         <hr class="text-muted opacity-25 my-4">
                         
                         {% comment %} =========================== {% endcomment %}
@@ -91,7 +97,7 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label small">CPF (Obrigatório para Saídas)</label>
+                            <label class="form-label small">CPF</label>
                             {{ form.solicitante_cpf }}
                             <div class="form-text small">Limite de 3 retiradas diárias por CPF.</div>
                             {% if form.solicitante_cpf.errors %}

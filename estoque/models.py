@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=50, unique=True)
@@ -34,7 +35,9 @@ class Movimentacao(models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name='movimentacoes')
     tipo = models.CharField(max_length=1, choices=TIPO_CHOICES)
     quantidade = models.PositiveIntegerField()
-    
+    observacao = models.TextField(blank=True, null=True, verbose_name="Observação")
+
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='movimentacoes', verbose_name="Responsável (Logado)")
     # Dados do solicitante
     solicitante_nome = models.CharField(max_length=100, blank=True)
     solicitante_cpf = models.CharField(max_length=14, blank=True, null=True) # Ex: 000.000.000-00
@@ -92,3 +95,7 @@ class Movimentacao(models.Model):
         
         self.produto.quantidade = novo_saldo
         self.produto.save()
+    class Meta:
+        verbose_name = "Movimentação"
+        verbose_name_plural = "Movimentações"
+        ordering = ['-created_at']
