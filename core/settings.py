@@ -128,6 +128,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # Opcional: Pastas extras onde você guarda seus próprios CSS
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, 'core/static'),
 ]
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -147,6 +148,9 @@ JAZZMIN_SETTINGS = {
     "copyright": "Estocka-Ai Ltd",
     "search_model": "estoque.Produto",  # Barra de busca global busca produtos
     "user_avatar": None,
+
+    "custom_js": "js/custom_admin.js",
+    "custom_css": "css/custom_admin.css",
 
     # Menu do Topo (Direita) - Aqui personalizamos os textos e ícones
     "usermenu_links": [

@@ -1,0 +1,324 @@
+/* ============================================================
+   1. CORREÇÃO DE CORES (DARK MODE & CONTRASTE)
+   Baseado nas classes do seu HTML: .selector select, .filtered
+   ============================================================ */
+
+/* Estilo das caixas de seleção (Disponíveis e Escolhidos) */
+.selector select,
+.filtered {
+    background-color: #2b3035 !important; /* Cinza Escuro */
+    color: #e9ecef !important;            /* Texto Claro */
+    border: 1px solid #495057 !important;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    padding: 10px;
+}
+
+/* Títulos das caixas (h2 dentro do selector, ou labels no Jazzmin) */
+.selector h2, 
+.selector-available-title label, 
+.selector-chosen-title label {
+    color: #adb5bd !important;
+    font-size: 0.85rem !important;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.selector .selector-filter {
+    background-color: #2b3035 !important;
+}
+
+/* Inputs de Filtro (Aquelas caixas de pesquisa em cima da lista) */
+.selector .selector-filter input {
+    background-color: #ffffff !important;
+    border: 1px solid #495057 !important;
+    color: #212529 !important;
+    border-radius: 20px;
+    padding: 5px 15px;
+    margin-bottom: 5px;
+}
+
+/* Ícone de ajuda/pesquisa */
+.selector .help-tooltip {
+    filter: invert(1) opacity(0.5); /* Torna ícones pretos em brancos */
+}
+
+/* ============================================================
+   2. ESTILIZAÇÃO DOS BOTÕES DE SETA (ADD/REMOVE)
+   IDs do seu HTML: #id_permissions_add, #id_permissions_remove
+   ============================================================ */
+
+.selector-add, .selector-remove {
+    /* Forma e Tamanho do Botão */
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 10px !important;
+    
+    /* Cores do Botão */
+    background-color: #343a40 !important;
+    border: 1px solid #495057 !important;
+    
+    /* Resetando o ícone padrão do Django */
+    filter: none !important; 
+    
+    /* Configuração para o ícone de fundo */
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 24px !important; /* Tamanho do ícone */
+    
+    /* Interação */
+    cursor: pointer;
+    opacity: 0.9;
+    transition: all 0.2s ease;
+    margin: 5px 0 !important;
+}
+
+.selector-add:hover, .selector-remove:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: invert(0); /* Seta volta a ser preta ou mantém contraste */
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+}
+
+.selector-add:hover {
+    background-color: #198754 !important; /* Azul no Hover */
+    border-color: #198754 !important;
+}
+
+.selector-remove:hover {
+    background-color: #ff2424 !important; /* Azul no Hover */
+    border-color: #ff2424 !important;
+}
+
+/* ============================================================
+   5. BOTÕES "ESCOLHER TODOS" E "REMOVER TODOS"
+   Classes: .selector-chooseall (Add All) / .selector-clearall (Remove All)
+   ============================================================ */
+
+.selector-chooseall, 
+.selector-clearall {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    
+    /* Estilo "Fantasma" (Ghost Button) para não poluir a tela */
+    background-color: transparent !important;
+    border: 1px dashed #6c757d !important;
+    border-radius: 6px;
+    
+    /* Tipografia */
+    color: #adb5bd !important; /* Cinza claro */
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none !important;
+    letter-spacing: 0.5px;
+    
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Ícone antes do texto (Opcional, usando content CSS) */
+.selector-chooseall::before {
+    content: "✚ ";
+    font-size: 1.1em;
+}
+.selector-clearall::before {
+    content: "✖ ";
+    font-size: 1.1em;
+}
+
+/* --- HOVER EFFECTS (Onde a mágica acontece) --- */
+
+/* Hover "Escolher Todos" -> Fica Verde */
+.selector-chooseall:hover {
+    background-color: rgba(25, 135, 84, 0.15) !important; /* Verde bem suave */
+    border-color: #198754 !important; /* Borda Verde Sólida */
+    color: #198754 !important;        /* Texto Verde */
+    box-shadow: 0 4px 6px rgba(25, 135, 84, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Hover "Remover Todos" -> Fica Vermelho */
+.selector-clearall:hover {
+    background-color: rgba(220, 53, 69, 0.15) !important; /* Vermelho bem suave */
+    border-color: #dc3545 !important; /* Borda Vermelha Sólida */
+    color: #dc3545 !important;        /* Texto Vermelho */
+    box-shadow: 0 4px 6px rgba(220, 53, 69, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Ajuste para quando o botão está desativado (disabled) */
+.selector-chooseall.active, 
+.selector-clearall.active {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #343a40 !important;
+    color: #495057 !important;
+}
+
+/* ============================================================
+   3. LAYOUT DESKTOP (PC > 992px)
+   Alinha horizontalmente: [Caixa] [Setas] [Caixa]
+   ============================================================ */
+@media (min-width: 992px) {
+    .selector {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .selector-available, .selector-chosen {
+        flex: 1; /* Ocupam o mesmo tamanho */
+        width: auto !important;
+        float: none !important;
+        margin: 0 !important;
+    }
+
+    /* Aumenta a altura da lista no PC para ver mais itens */
+    .selector select {
+        height: 300px !important;
+    }
+
+    /* Coluna do meio (onde ficam as setas) */
+    .selector-chooser {
+        width: 60px !important;
+        float: none !important;
+        margin: 0 15px !important;
+        padding: 0 !important;
+        background: transparent !important;
+        
+        display: flex;
+        flex-direction: column; /* Setas uma em cima da outra */
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        transform: none !important;
+    }
+    
+    .selector-chooser li {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Botão Adicionar (Seta para Direita →) */
+    .selector-add {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' class='bi bi-arrow-right' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z'/%3E%3C/svg%3E");
+    }
+
+    /* Botão Remover (Seta para Esquerda ←) */
+    .selector-remove {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' class='bi bi-arrow-left' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z'/%3E%3C/svg%3E");
+    }
+    
+}
+
+
+
+/* ============================================================
+   4. LAYOUT MOBILE (Celular < 992px)
+   Alinha verticalmente: 
+   [Caixa]
+   [Setas viradas]
+   [Caixa]
+   [Botões de Salvar Grandes]
+   ============================================================ */
+@media (max-width: 991px) {
+    
+    /* Empilha as caixas */
+    .selector {
+        display: flex;
+        flex-direction: column;
+        width: 100% !important;
+        float: none !important;
+    }
+
+    .selector-available, .selector-chosen {
+        width: 100% !important;
+        float: none !important;
+        margin-bottom: 0;
+    }
+
+    /* Botão Adicionar (Seta para Baixo ↓) */
+    .selector-add {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' class='bi bi-arrow-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z'/%3E%3C/svg%3E");
+    }
+
+    /* Botão Remover (Seta para Cima ↑) */
+    .selector-remove {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' class='bi bi-arrow-up' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z'/%3E%3C/svg%3E");
+    }
+
+    /* Altura menor no celular para caber na tela */
+    .selector select {
+        height: 200px !important;
+    }
+
+    .selector-chooser {
+        width: 100% !important;
+        float: none !important;
+        margin: 15px 0 !important; /* Espaço em cima e embaixo */
+        background: transparent !important;
+        padding: 0 !important;
+        
+        display: flex !important;
+        flex-direction: row !important; /* <--- ISSO DEIXA LADO A LADO */
+        justify-content: center !important; /* Centraliza no meio da tela */
+        align-items: center !important;
+        gap: 25px !important; /* Espaço entre o botão de adicionar e remover */
+        
+        transform: none !important; /* Remove qualquer rotação antiga */
+    }
+    
+    .selector-chooser li {
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        float: none !important;
+        border: none !important;
+    }
+
+    /* --- Botões de Salvar (Sticky ou Grandes) --- */
+    /* ID #jazzy-actions do seu HTML */
+    #jazzy-actions {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #212529; /* Fundo escuro */
+        padding: 15px;
+        z-index: 1000;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        display: flex;
+        flex-direction: column-reverse; /* Salvar principal embaixo */
+        gap: 10px;
+    }
+
+    /* Estilo dos inputs de submit (Salvar) */
+    #jazzy-actions .form-group {
+        margin-bottom: 0 !important;
+    }
+
+    #jazzy-actions input[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+    }
+    
+    /* Adiciona margem no final do conteúdo para não ficar escondido atrás dos botões fixos */
+    .content-wrapper {
+        padding-bottom: 180px !important; 
+    }
+}
+
+.list-footer-display { 
+    display: none !important; 
+}
